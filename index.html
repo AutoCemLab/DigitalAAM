@@ -1,0 +1,1843 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DigitalAAM v0.1</title>
+  <style>
+    :root {
+      --ink: #17212b;
+      --muted: #5f6267;
+      --line: #e4d8c8;
+      --panel: #ffffff;
+      --paper: #faf8f2;
+      --accent: #b8463a;
+      --accent-2: #1e7c74;
+      --gold: #f5a623;
+      --warm-panel: #fffaf0;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+
+    header {
+      background-color: #fff;
+      background-image:
+        linear-gradient(90deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.92) 35%, rgba(255, 255, 255, 0.30) 58%, rgba(255, 255, 255, 0.00) 100%),
+        url("assets/digitalaam-banner.png");
+      background-repeat: no-repeat;
+      background-position: center right;
+      background-size: auto 130%;
+      color: var(--ink);
+      min-height: 260px;
+      padding: 40px clamp(18px, 4vw, 48px);
+      border-bottom: 1px solid var(--line);
+      box-shadow: inset 0 -1px 0 rgba(184, 70, 58, 0.12);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    header h1 {
+      margin: 0 0 8px;
+      font-size: clamp(28px, 4vw, 46px);
+      letter-spacing: 0;
+    }
+
+    .hero-kicker {
+      margin: 0 0 8px;
+      color: #7b2f27;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .hero-value {
+      margin: 0 0 10px;
+      max-width: 760px;
+      color: var(--ink);
+      font-size: clamp(22px, 3vw, 34px);
+      line-height: 1.18;
+      font-weight: 700;
+    }
+
+    header p {
+      margin: 0;
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .hero-points {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      max-width: 760px;
+      margin-top: 18px;
+    }
+
+    .hero-points span {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 10px;
+      border: 1px solid #ead7aa;
+      border-radius: 999px;
+      background: rgba(255, 250, 240, 0.88);
+      color: #564015;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    @media (max-width: 900px) {
+      header {
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.86)),
+          url("assets/digitalaam-banner.png");
+        background-size: auto 130%;
+        min-height: 240px;
+      }
+    }
+
+    main {
+      padding: 24px clamp(14px, 3vw, 42px) 38px;
+    }
+
+    .notice {
+      max-width: 1760px;
+      padding: 14px 16px;
+      margin: 0 auto 18px;
+      background: var(--warm-panel);
+      border: 1px solid #ead7aa;
+      border-left: 6px solid var(--gold);
+      color: #564015;
+    }
+
+    .layout {
+      max-width: 1760px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(228px, 288px) minmax(0, 1fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    section,
+    aside {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(25, 35, 45, 0.06);
+    }
+
+    aside {
+      padding: 18px;
+      position: sticky;
+      top: 14px;
+    }
+
+    .maps {
+      padding: 18px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      margin: 18px 0 8px;
+      font-size: 16px;
+      letter-spacing: 0;
+    }
+
+    label {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      margin: 12px 0 6px;
+      font-weight: 700;
+      color: #24313c;
+      font-size: 14px;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--accent);
+    }
+
+    .value {
+      min-width: 64px;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .small {
+      margin: 4px 0 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .field {
+      min-width: 0;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font: inherit;
+    }
+
+    .precursor-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      background: #fffdf8;
+    }
+
+    .oxide-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 10px;
+    }
+
+    .computed {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 8px;
+      background: #fff7e6;
+      border: 1px solid #ead7aa;
+      color: #564015;
+      font-size: 13px;
+    }
+
+    .computed-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 6px;
+      margin-top: 8px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .computed-grid span {
+      display: block;
+      padding: 6px 4px;
+      border-radius: 4px;
+      background: #fff;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 14px;
+      min-height: 42px;
+      border: 0;
+      border-radius: 6px;
+      color: #fff;
+      background: var(--accent);
+      font-weight: 700;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #99382f;
+    }
+
+    button:disabled {
+      cursor: wait;
+      opacity: 0.72;
+    }
+
+    .switch-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 12px;
+      color: #24313c;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .switch-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .input-with-fix {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .fix-toggle {
+      min-height: 38px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 8px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: #24313c;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .fix-toggle input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+    }
+
+    .optimize-status {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .metric {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fffdf8;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 4px;
+      font-size: clamp(20px, 3vw, 28px);
+      line-height: 1.2;
+    }
+
+    .plot-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      align-items: start;
+    }
+
+    .plot-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px;
+      background: #fff;
+    }
+
+    .plot-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: baseline;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .plot-title span {
+      color: var(--muted);
+      font-weight: 400;
+      font-size: 12px;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      aspect-ratio: 1.12 / 1;
+      border-radius: 6px;
+      background: #fffdf8;
+    }
+
+    .legend {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .strength-legend {
+      display: grid;
+      grid-template-columns: repeat(8, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .strength-legend span {
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-size: 11px;
+      font-weight: 700;
+      border-right: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
+    .strength-legend span:last-child {
+      border-right: 0;
+      color: #fff;
+    }
+
+    .legend-caption {
+      margin-top: 4px;
+      text-align: center;
+      color: var(--muted);
+    }
+
+    .notes {
+      margin-top: 16px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .notes ul {
+      padding-left: 18px;
+      margin: 8px 0 0;
+    }
+
+    .support-panels {
+      margin-top: 16px;
+      padding-top: 14px;
+      border-top: 1px solid var(--line);
+      display: grid;
+      gap: 12px;
+    }
+
+    .guide,
+    .workflow,
+    .references {
+      color: #24313c;
+      font-size: 13px;
+    }
+
+    .guide h3,
+    .workflow h3,
+    .references h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--ink);
+    }
+
+    .guide details,
+    .workflow details,
+    .references details {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      margin-top: 8px;
+      padding: 10px 12px;
+    }
+
+    .guide summary,
+    .workflow summary,
+    .references summary {
+      cursor: pointer;
+      font-weight: 700;
+      color: #7b2f27;
+    }
+
+    .guide p,
+    .references p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .references ul {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .references li {
+      margin: 8px 0;
+    }
+
+    .references a {
+      color: #7b2f27;
+      font-weight: 700;
+    }
+
+    .flow {
+      display: grid;
+      gap: 14px;
+      margin-top: 12px;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: 132px minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .flow-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: #fff7e6;
+      border: 1px solid #ead7aa;
+      color: #7b2f27;
+      font-size: 12px;
+      font-weight: 700;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .flow-lanes {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .flow-lane {
+      display: grid;
+      gap: 8px;
+      padding: 10px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf8;
+    }
+
+    .flow-lane h4 {
+      margin: 0;
+      font-size: 13px;
+      color: var(--ink);
+    }
+
+    .flow-items {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .flow-items.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .flow-items.three {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .flow-card {
+      min-height: 74px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fffdf8;
+      color: var(--ink);
+    }
+
+    .flow-card.merge {
+      background: #fffaf0;
+      border-color: #ead7aa;
+    }
+
+    .flow-card.output {
+      background: #fff7e6;
+      border-color: #ead7aa;
+    }
+
+    .flow-card.input {
+      background: #fffdf8;
+    }
+
+    .flow-card.formula {
+      background: #fff7e6;
+      border-color: #ead7aa;
+    }
+
+    .flow-card.activator {
+      background: #fffaf0;
+      border-color: #ead7aa;
+    }
+
+    .flow-card span {
+      display: inline-flex;
+      width: 24px;
+      height: 24px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .flow-card strong {
+      display: block;
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .flow-card em {
+      display: block;
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 12px;
+      font-style: normal;
+      line-height: 1.35;
+    }
+
+    .flow-arrow {
+      width: 2px;
+      height: 18px;
+      margin: -2px auto;
+      background: #9aa9b4;
+      position: relative;
+      grid-column: 2;
+    }
+
+    .flow-arrow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -1px;
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid #9aa9b4;
+      border-bottom: 2px solid #9aa9b4;
+      transform: translateX(-50%) rotate(45deg);
+    }
+
+    @media (max-width: 980px) {
+      .layout,
+      .metrics {
+        grid-template-columns: 1fr;
+      }
+
+      .plot-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .computed-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      aside {
+        position: static;
+      }
+    }
+
+    @media (max-width: 760px) {
+      .flow-row {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-label {
+        min-height: 36px;
+      }
+
+      .flow-lanes {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-items,
+      .flow-items.two,
+      .flow-items.three {
+        grid-template-columns: 1fr;
+      }
+
+      .flow-arrow {
+        grid-column: 1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="hero-kicker">Prototype v0.1 for guided alkali-activated concrete design</p>
+    <h1>DigitalAAM v0.1</h1>
+    <div class="hero-value">A digital guide to practical alkali-activated concrete design, powered by known precursor chemistry.</div>
+    <p>DigitalAAM is designed to guide alkali-activated concrete mix design from known precursor chemistry using GPR strength prediction and ternary design maps, helping users identify practical reference points while improving resource efficiency and the efficiency of experimentation.</p>
+    <div class="hero-points" aria-label="DigitalAAM key benefits">
+      <span>Known precursors in</span>
+      <span>Design reference point out</span>
+      <span>Less trial batching</span>
+    </div>
+  </header>
+
+  <main>
+    <div class="notice">
+      This static HTML version uses <code>strength_predictions.js</code>, a precomputed response surface generated from the trained GPR model. It works directly from the local file without running a Python server.
+    </div>
+
+    <div class="layout">
+      <aside>
+        <h2>Mix Inputs</h2>
+        <p class="small">Interface draft for two mineral precursors, activator dosage, activator modulus, and total water. The computed binder oxide chemistry below is used to locate the nearest saved GPR prediction point for the current plots.</p>
+
+        <div class="precursor-card">
+          <h3>Mineral Precursor 1</h3>
+          <div class="field">
+            <label for="p1Share">Mass share, g per 100 g total precursors</label>
+            <input id="p1Share" type="number" min="0" max="100" value="70" step="0.1">
+          </div>
+          <div class="field">
+            <label for="p1DegreeReaction">Degree of reaction at 28 days, % <span id="p1DorValue">100%</span></label>
+            <input id="p1DegreeReaction" type="range" min="0" max="100" value="100" step="1">
+          </div>
+          <div class="oxide-grid">
+            <div class="field"><label for="p1CaO">CaO wt.%</label><input id="p1CaO" type="number" min="0" max="100" value="42" step="0.1"></div>
+            <div class="field"><label for="p1SiO2">SiO2 wt.%</label><input id="p1SiO2" type="number" min="0" max="100" value="35" step="0.1"></div>
+            <div class="field"><label for="p1Al2O3">Al2O3 wt.%</label><input id="p1Al2O3" type="number" min="0" max="100" value="13" step="0.1"></div>
+            <div class="field"><label for="p1MgO">MgO wt.%</label><input id="p1MgO" type="number" min="0" max="100" value="8" step="0.1"></div>
+            <div class="field"><label for="p1Na2O">Na2O wt.%</label><input id="p1Na2O" type="number" min="0" max="100" value="0" step="0.1"></div>
+          </div>
+        </div>
+
+        <div class="precursor-card">
+          <h3>Mineral Precursor 2</h3>
+          <div class="field">
+            <label for="p2Share">Mass share, g per 100 g total precursors</label>
+            <input id="p2Share" type="number" min="0" max="100" value="30" step="0.1">
+          </div>
+          <div class="field">
+            <label for="p2DegreeReaction">Degree of reaction at 28 days, % <span id="p2DorValue">100%</span></label>
+            <input id="p2DegreeReaction" type="range" min="0" max="100" value="100" step="1">
+          </div>
+          <div class="oxide-grid">
+            <div class="field"><label for="p2CaO">CaO wt.%</label><input id="p2CaO" type="number" min="0" max="100" value="2" step="0.1"></div>
+            <div class="field"><label for="p2SiO2">SiO2 wt.%</label><input id="p2SiO2" type="number" min="0" max="100" value="60" step="0.1"></div>
+            <div class="field"><label for="p2Al2O3">Al2O3 wt.%</label><input id="p2Al2O3" type="number" min="0" max="100" value="28" step="0.1"></div>
+            <div class="field"><label for="p2MgO">MgO wt.%</label><input id="p2MgO" type="number" min="0" max="100" value="1" step="0.1"></div>
+            <div class="field"><label for="p2Na2O">Na2O wt.%</label><input id="p2Na2O" type="number" min="0" max="100" value="0.5" step="0.1"></div>
+          </div>
+        </div>
+
+        <h3>Concrete Mix Scale</h3>
+        <div class="field">
+          <label for="totalBinderConcrete">Total binder mass, kg per m3 concrete</label>
+          <select id="totalBinderConcrete">
+            <option value="350">350</option>
+            <option value="450" selected>450</option>
+            <option value="550">550</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="fineAggregate">Fine aggregate, kg per m3 concrete</label>
+          <select id="fineAggregate">
+            <option value="600">600</option>
+            <option value="800" selected>800</option>
+            <option value="1000">1000</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="coarseAggregate">Coarse aggregate, kg per m3 concrete</label>
+          <select id="coarseAggregate">
+            <option value="800">800</option>
+            <option value="1000" selected>1000</option>
+            <option value="1200">1200</option>
+          </select>
+        </div>
+
+        <h3>Activator And Water</h3>
+        <div class="field">
+          <label for="dryNaOH">Dry mass of NaOH, g per 100 g total mineral precursors</label>
+          <div class="input-with-fix">
+            <input id="dryNaOH" type="number" min="0" max="40" value="4" step="0.1">
+            <label class="fix-toggle" for="fixNaOH">Fix <input id="fixNaOH" type="checkbox"></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="silicateSolution">Total sodium silicate solution added, g per 100 g total mineral precursors</label>
+          <div class="input-with-fix">
+            <input id="silicateSolution" type="number" min="0" max="100" value="15" step="0.1">
+            <label class="fix-toggle" for="fixSilicate">Fix <input id="fixSilicate" type="checkbox"></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="activatorModulus">Activator modulus, SiO2/Na2O molar ratio</label>
+          <input id="activatorModulus" type="number" min="0" max="3" value="1.0" step="0.05">
+        </div>
+        <div class="field">
+          <label for="silicateWater">Water content in sodium silicate solution, wt.%</label>
+          <input id="silicateWater" type="number" min="0" max="90" value="60" step="0.1">
+        </div>
+        <div class="field">
+          <label for="additionalWater">Additional water added, g per 100 g total mineral precursors</label>
+          <input id="additionalWater" type="number" min="0" max="100" value="30" step="0.1">
+        </div>
+
+        <div class="computed">
+          <strong>Computed alkali-activated mix designs per 100g of precursors</strong>
+          <div class="computed-grid" id="computedOxides"></div>
+          <p class="small" id="computedNote"></p>
+        </div>
+
+        <button id="optimizeActivator" type="button">Optimise activator</button>
+        <p class="optimize-status" id="optimizeStatus"></p>
+
+        <button id="reset">Reset</button>
+      </aside>
+
+      <section class="maps">
+        <div class="metrics">
+          <div class="metric">
+            <span>Predicted strength</span>
+            <strong id="strengthMetric">-- MPa</strong>
+          </div>
+          <div class="metric">
+            <span>Uncertainty</span>
+            <strong id="uncertaintyMetric">-- MPa</strong>
+          </div>
+          <div class="metric">
+            <span>Predicted region</span>
+            <strong id="regionMetric">--</strong>
+          </div>
+        </div>
+
+        <div class="plot-grid">
+          <div class="plot-card panel-a">
+            <div class="plot-title">(A) CaO-Al2O3-SiO2 <span>Predicted 28-day strength</span></div>
+            <canvas id="strengthMap" width="760" height="680"></canvas>
+            <div class="legend"></div>
+          </div>
+          <div class="plot-card panel-b">
+            <div class="plot-title">(B) CaO-Na2O-SiO2 <span>Predicted 28-day strength</span></div>
+            <canvas id="naMap" width="760" height="680"></canvas>
+            <div class="legend"></div>
+          </div>
+          <div class="plot-card panel-c">
+            <div class="plot-title">(C) CaO-MgO-SiO2 <span>Predicted 28-day strength</span></div>
+            <canvas id="mgMap" width="760" height="680"></canvas>
+            <div class="legend"></div>
+          </div>
+        </div>
+
+        <div class="notes">
+          <strong>Paper mapping used in this prototype:</strong>
+          <ul>
+            <li>Inputs follow the paper's five binder oxides: CaO, SiO2, Al2O3, MgO, and Na2O, plus water, aggregate, and age variables.</li>
+            <li>The three ternary panels match Fig. 4: CaO-Al2O3-SiO2, CaO-Na2O-SiO2, and CaO-MgO-SiO2.</li>
+            <li>All three maps use the saved strength GPR output table; the selected marker is normalised within each ternary projection.</li>
+          </ul>
+        </div>
+
+        <div class="support-panels">
+          <div class="workflow" aria-label="Calculation, prediction, and optimisation workflow">
+            <h3>Calculation workflow</h3>
+            <details>
+              <summary>Show calculation workflow</summary>
+              <div class="flow">
+              <div class="flow-row">
+                <div class="flow-label">Raw inputs</div>
+                <div class="flow-items three">
+                  <div class="flow-card input">
+                    <span>1</span>
+                    <strong>Precursor inputs</strong>
+                    <em>Mass share, oxide wt.%, and DoR for each precursor</em>
+                  </div>
+                  <div class="flow-card input">
+                    <span>2</span>
+                    <strong>Activator and water inputs</strong>
+                    <em>NaOH, sodium silicate solution, modulus, and water</em>
+                  </div>
+                  <div class="flow-card input">
+                    <span>3</span>
+                    <strong>Concrete scale inputs</strong>
+                    <em>Total binder, fine aggregate, coarse aggregate, and age</em>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flow-arrow"></div>
+
+              <div class="flow-row">
+                <div class="flow-label">Chemistry</div>
+                <div class="flow-lanes">
+                  <div class="flow-lane">
+                    <h4>Precursor reaction lane</h4>
+                    <div class="flow-card formula">
+                      <span>4A</span>
+                      <strong>P1 reacted oxide mass</strong>
+                      <em>P1 mass x oxide wt.% x DoR1</em>
+                    </div>
+                    <div class="flow-card formula">
+                      <span>4B</span>
+                      <strong>P2 reacted oxide mass</strong>
+                      <em>P2 mass x oxide wt.% x DoR2</em>
+                    </div>
+                    <div class="flow-card merge">
+                      <span>5</span>
+                      <strong>Add same oxides from P1 and P2</strong>
+                      <em>CaO + CaO, SiO2 + SiO2, etc.</em>
+                    </div>
+                  </div>
+                  <div class="flow-lane">
+                    <h4>Activator and binder lane</h4>
+                    <div class="flow-card activator">
+                      <span>6A</span>
+                      <strong>Calculate activator oxides</strong>
+                      <em>Na2O from NaOH; Na2O and SiO2 from sodium silicate</em>
+                    </div>
+                    <div class="flow-card activator">
+                      <span>6B</span>
+                      <strong>Calculate water and total binder content</strong>
+                      <em>Solution water + added water; precursors + activator + water</em>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flow-arrow"></div>
+
+              <div class="flow-row">
+                <div class="flow-label">GPR input</div>
+                <div class="flow-items two">
+                  <div class="flow-card merge">
+                    <span>7</span>
+                    <strong>Combine chemistry into model features</strong>
+                    <em>Reacted precursor oxides + activator oxides + water</em>
+                  </div>
+                  <div class="flow-card">
+                    <span>8</span>
+                    <strong>Find nearest saved GPR prediction point</strong>
+                    <em>Matched to selected binder, fine aggregate, and coarse aggregate</em>
+                  </div>
+                </div>
+              </div>
+
+              <div class="flow-arrow"></div>
+
+              <div class="flow-row">
+                <div class="flow-label">Outputs</div>
+                <div class="flow-items three">
+                  <div class="flow-card output">
+                    <span>9A</span>
+                    <strong>Show predicted strength and uncertainty</strong>
+                  </div>
+                  <div class="flow-card output">
+                    <span>9B</span>
+                    <strong>Draw ternary colour maps and selected marker</strong>
+                  </div>
+                  <div class="flow-card output">
+                    <span>9C</span>
+                    <strong>Search activator options and suggest highest-strength dosage</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+              </div>
+            </details>
+          </div>
+
+          <div class="guide">
+            <h3>Interpretation guide</h3>
+            <details open>
+              <summary>Can the ternary colour maps guide mix design?</summary>
+              <p>Yes. The coloured points come from saved GPR predictions for the selected concrete mix scale, so darker regions indicate candidate compositions with higher predicted strength in the precomputed design space.</p>
+            </details>
+            <details>
+              <summary>Why can the selected point appear stronger in one map than another?</summary>
+              <p>Each ternary plot is a different projection of the same higher-dimensional mix. Plot A normalises CaO-Al2O3-SiO2, plot B normalises CaO-Na2O-SiO2, and plot C normalises CaO-MgO-SiO2. A selected mix can sit near a high-strength cluster in one projection while appearing less central in another because the hidden variables are different.</p>
+            </details>
+            <details>
+              <summary>Which result should be treated as the prediction?</summary>
+              <p>The numeric predicted strength and uncertainty above the maps are the prediction for the current full input set. The ternary maps are visual design guidance, not separate three-variable models.</p>
+            </details>
+            <details>
+              <summary>What reaction assumption is used for precursor dissolution?</summary>
+              <p>The current model simplifies precursor reaction as congruent dissolution: each precursor releases its oxide components in proportion to its bulk oxide composition and degree of reaction. It does not explicitly model selective dissolution, where different elements may dissolve at different rates.</p>
+            </details>
+            <details>
+              <summary>How should the optimisation result be interpreted?</summary>
+              <p>The optimisation searches the saved GPR prediction data under the selected binder, fine aggregate, and coarse aggregate condition. The optimised marker shows the suggested activator position in each ternary projection, and should be assessed together with the predicted strength and uncertainty.</p>
+            </details>
+          </div>
+
+          <div class="references">
+            <h3>Model Basis And References</h3>
+            <details>
+              <summary>Show model basis and references</summary>
+              <p>This prototype builds on published work coupling machine learning, thermodynamic modelling, ternary composition maps, and inverse design concepts for alkali-activated and cementitious materials.</p>
+              <ul>
+                <li>
+                  <a href="https://www.sciencedirect.com/science/article/pii/S135983682100192X" target="_blank" rel="noopener">Coupling machine learning with thermodynamic modelling to develop a composition-property model for alkali-activated materials</a><br>
+                  Ke, X. and Duan, Y. (2021) <em>Composites Part B: Engineering</em>, 216. doi: 10.1016/j.compositesb.2021.108842.
+                </li>
+                <li>
+                  <a href="https://www.sciencedirect.com/science/article/abs/pii/S0950061820334280" target="_blank" rel="noopener">A Bayesian machine learning approach for inverse prediction of high-performance concrete ingredients with targeted performance</a><br>
+                  Ke, X. and Duan, Y. (2021) <em>Construction and Building Materials</em>, 270. doi: 10.1016/j.conbuildmat.2020.121424.
+                </li>
+              </ul>
+              <p>The current webtool uses a precomputed GPR response surface and ternary design maps to guide practical starting points for alkali-activated concrete mix design.</p>
+            </details>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="strength_predictions.js"></script>
+  <script>
+    const ids = [
+      "p1Share", "p1DegreeReaction", "p1CaO", "p1SiO2", "p1Al2O3", "p1MgO", "p1Na2O",
+      "p2Share", "p2DegreeReaction", "p2CaO", "p2SiO2", "p2Al2O3", "p2MgO", "p2Na2O",
+      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater",
+      "totalBinderConcrete", "fineAggregate", "coarseAggregate"
+    ];
+    const defaults = {
+      p1Share: 70, p1DegreeReaction: 100, p1CaO: 42, p1SiO2: 35, p1Al2O3: 13, p1MgO: 8, p1Na2O: 0,
+      p2Share: 30, p2DegreeReaction: 100, p2CaO: 2, p2SiO2: 60, p2Al2O3: 28, p2MgO: 1, p2Na2O: 0.5,
+      dryNaOH: 4, silicateSolution: 15, activatorModulus: 1.0, silicateWater: 60, additionalWater: 30,
+      totalBinderConcrete: 450, fineAggregate: 800, coarseAggregate: 1000
+    };
+    const clearableInputIds = [
+      "p1Share", "p1DegreeReaction", "p1CaO", "p1SiO2", "p1Al2O3", "p1MgO", "p1Na2O",
+      "p2Share", "p2DegreeReaction", "p2CaO", "p2SiO2", "p2Al2O3", "p2MgO", "p2Na2O",
+      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater"
+    ];
+    const oxides = ["cao", "sio2", "al2o3", "mgo", "na2o"];
+    let savedPredictions = window.STRENGTH_PREDICTIONS || [];
+    let predictionColumns = window.STRENGTH_PREDICTIONS_COLUMNS || [];
+    let predictionMeta = window.STRENGTH_PREDICTIONS_META || {};
+    let predictionIndex = predictionColumns.reduce((lookup, column, index) => {
+      lookup[column] = index;
+      return lookup;
+    }, {});
+    let activeBinderData = String(predictionMeta.binder || 450);
+    let dataLoadRequest = 0;
+    let lastOptimizedDesign = null;
+    const molarMass = { naoh: 39.997, na2o: 61.9789, sio2: 60.0843 };
+
+    function rowValue(row, column) {
+      return Array.isArray(row) ? row[predictionIndex[column]] : row[column];
+    }
+
+    function syncPredictionDataFromWindow() {
+      savedPredictions = window.STRENGTH_PREDICTIONS || [];
+      predictionColumns = window.STRENGTH_PREDICTIONS_COLUMNS || [];
+      predictionMeta = window.STRENGTH_PREDICTIONS_META || {};
+      predictionIndex = predictionColumns.reduce((lookup, column, index) => {
+        lookup[column] = index;
+        return lookup;
+      }, {});
+      activeBinderData = String(predictionMeta.binder || document.getElementById("totalBinderConcrete").value);
+    }
+
+    function predictionFileForBinder(binder) {
+      const files = window.STRENGTH_PREDICTION_FILES || {};
+      return files[String(binder)] || `strength_predictions_binder_${binder}.js`;
+    }
+
+    function loadPredictionDataForBinder(binder, callback) {
+      const binderText = String(binder);
+      if (activeBinderData === binderText && savedPredictions.length) {
+        callback();
+        return;
+      }
+      const request = ++dataLoadRequest;
+      const script = document.createElement("script");
+      script.src = `${predictionFileForBinder(binderText)}?v=${Date.now()}`;
+      script.onload = () => {
+        if (request !== dataLoadRequest) return;
+        syncPredictionDataFromWindow();
+        callback();
+      };
+      script.onerror = () => {
+        if (request !== dataLoadRequest) return;
+        savedPredictions = [];
+        predictionMeta = { binder: binderText };
+        activeBinderData = binderText;
+        callback();
+      };
+      document.head.appendChild(script);
+    }
+
+    function readInputs(overrides = {}) {
+      const raw = {};
+      ids.forEach((id) => raw[id] = Number(document.getElementById(id).value));
+      Object.assign(raw, overrides);
+      const shareTotal = Math.max(0.0001, raw.p1Share + raw.p2Share);
+      const p1Mass = 100 * raw.p1Share / shareTotal;
+      const p2Mass = 100 * raw.p2Share / shareTotal;
+      const p1Oxides = {
+        cao: p1Mass * raw.p1CaO / 100,
+        sio2: p1Mass * raw.p1SiO2 / 100,
+        al2o3: p1Mass * raw.p1Al2O3 / 100,
+        mgo: p1Mass * raw.p1MgO / 100,
+        na2o: p1Mass * raw.p1Na2O / 100
+      };
+      const p2Oxides = {
+        cao: p2Mass * raw.p2CaO / 100,
+        sio2: p2Mass * raw.p2SiO2 / 100,
+        al2o3: p2Mass * raw.p2Al2O3 / 100,
+        mgo: p2Mass * raw.p2MgO / 100,
+        na2o: p2Mass * raw.p2Na2O / 100
+      };
+      const precursorMasses = {
+        cao: p1Oxides.cao + p2Oxides.cao,
+        sio2: p1Oxides.sio2 + p2Oxides.sio2,
+        al2o3: p1Oxides.al2o3 + p2Oxides.al2o3,
+        mgo: p1Oxides.mgo + p2Oxides.mgo,
+        na2o: p1Oxides.na2o + p2Oxides.na2o
+      };
+      const na2oFromNaOH = raw.dryNaOH * molarMass.na2o / (2 * molarMass.naoh);
+      const silicateWaterMass = raw.silicateSolution * raw.silicateWater / 100;
+      const silicateSolids = Math.max(0, raw.silicateSolution - silicateWaterMass);
+      const silicateNa2O = silicateSolids / (molarMass.na2o + raw.activatorModulus * molarMass.sio2) * molarMass.na2o;
+      const silicateSiO2 = silicateSolids - silicateNa2O;
+      const activatorNa2O = na2oFromNaOH + silicateNa2O;
+      const activatorSiO2 = silicateSiO2;
+      const totalWater = silicateWaterMass + raw.additionalWater;
+      const oxideMasses = {
+        cao: precursorMasses.cao,
+        sio2: precursorMasses.sio2 + activatorSiO2,
+        al2o3: precursorMasses.al2o3,
+        mgo: precursorMasses.mgo,
+        na2o: precursorMasses.na2o + activatorNa2O
+      };
+      const totalBinderMass = 100 + raw.dryNaOH + raw.silicateSolution + raw.additionalWater;
+      const modelInputs = {};
+      oxides.forEach((id) => modelInputs[id] = oxideMasses[id] / totalBinderMass * 100);
+      const p1DorFactor = Math.max(0, Math.min(1, raw.p1DegreeReaction / 100));
+      const p2DorFactor = Math.max(0, Math.min(1, raw.p2DegreeReaction / 100));
+      const reactedPrecursorMasses = {};
+      oxides.forEach((id) => reactedPrecursorMasses[id] = p1Oxides[id] * p1DorFactor + p2Oxides[id] * p2DorFactor);
+      const reactedOxideMasses = {
+        cao: reactedPrecursorMasses.cao,
+        sio2: reactedPrecursorMasses.sio2 + activatorSiO2,
+        al2o3: reactedPrecursorMasses.al2o3,
+        mgo: reactedPrecursorMasses.mgo,
+        na2o: reactedPrecursorMasses.na2o + activatorNa2O
+      };
+      const reactedModelInputs = {};
+      oxides.forEach((id) => reactedModelInputs[id] = reactedOxideMasses[id] / totalBinderMass * 100);
+      const waterInput = totalWater / totalBinderMass * 100;
+      return {
+        ...raw,
+        ...modelInputs,
+        p1DorFactor,
+        p2DorFactor,
+        oxideTotal: oxides.reduce((sum, id) => sum + oxideMasses[id], 0),
+        totalBinderMass,
+        p1Mass,
+        p2Mass,
+        p1Oxides,
+        p2Oxides,
+        precursorMasses,
+        reactedPrecursorMasses,
+        oxideMasses,
+        reactedOxideMasses,
+        reactedModelInputs,
+        na2oFromNaOH,
+        silicateNa2O,
+        activatorSiO2,
+        activatorNa2O,
+        silicateWaterMass,
+        totalWater,
+        age: 28,
+        wb: waterInput,
+        water: waterInput,
+        modelFeatures: {
+          CaO: reactedModelInputs.cao / 100 * raw.totalBinderConcrete,
+          SiO2: reactedModelInputs.sio2 / 100 * raw.totalBinderConcrete,
+          MgO: reactedModelInputs.mgo / 100 * raw.totalBinderConcrete,
+          Al2O3: reactedModelInputs.al2o3 / 100 * raw.totalBinderConcrete,
+          Na2O: reactedModelInputs.na2o / 100 * raw.totalBinderConcrete,
+          water: waterInput / 100 * raw.totalBinderConcrete,
+          "Fine aggregate": raw.fineAggregate,
+          "Coarse aggregate": raw.coarseAggregate,
+          Age: 28
+        },
+        totalBinderConcrete: raw.totalBinderConcrete,
+        fine: raw.fineAggregate,
+        coarse: raw.coarseAggregate
+      };
+    }
+
+    function gaussian(value, center, width) {
+      return Math.exp(-0.5 * Math.pow((value - center) / width, 2));
+    }
+
+    function compositionScore(c) {
+      const highCa = gaussian(c.cao, 40, 6) * gaussian(c.sio2, 41, 7) * gaussian(c.al2o3, 13, 5) * gaussian(c.na2o, 4.5, 2.2) * gaussian(c.mgo, 1.5, 2.2);
+      const lowCa = gaussian(c.cao, 2, 3) * gaussian(c.sio2, 69, 5) * gaussian(c.al2o3, 20, 4) * gaussian(c.na2o, 8, 2.5) * gaussian(c.mgo, 1, 2.0);
+      const penalty = 0.18 * Math.max(0, c.mgo - 3) + 0.08 * Math.max(0, c.na2o - 8);
+      return Math.max(0, Math.min(1, 0.12 + 0.86 * Math.max(highCa, lowCa) - penalty));
+    }
+
+    function surrogatePredict(c) {
+      const score = compositionScore(c);
+      const ageFactor = Math.min(1.18, Math.max(0.55, Math.log(Math.max(3, c.age)) / Math.log(28)));
+      const waterFactor = Math.max(0.55, Math.min(1.25, 1.12 - (c.wb - 0.4) * 1.35));
+      const aggregateFactor = Math.max(0.82, Math.min(1.08, 1 - Math.abs((c.fine + c.coarse) - 1800) / 4500));
+      const strength = (10 + 83 * score) * ageFactor * waterFactor * aggregateFactor;
+      const uncertainty = 4.5 + 18 * (1 - score) + 0.35 * Math.abs(c.cao - 22) / 2 + 0.18 * Math.max(0, c.mgo - 5);
+      const region = score > 0.72 && c.cao > 20 ? "C-(N)-A-S-H" : score > 0.55 && c.cao < 10 ? "N-A-S-H" : "Transition";
+      return { strength, uncertainty, region };
+    }
+
+    function rowToComposition(row) {
+      const totalBinder = rowValue(row, "Total binder") || 1;
+      return {
+        cao: rowValue(row, "CaO") / totalBinder * 100,
+        sio2: rowValue(row, "SiO2") / totalBinder * 100,
+        mgo: rowValue(row, "MgO") / totalBinder * 100,
+        al2o3: rowValue(row, "Al2O3") / totalBinder * 100,
+        na2o: rowValue(row, "Na2O") / totalBinder * 100,
+        age: rowValue(row, "Age"),
+        wb: rowValue(row, "water"),
+        fine: rowValue(row, "Fine aggregate"),
+        coarse: rowValue(row, "Coarse aggregate")
+      };
+    }
+
+    function classifyRegion(c) {
+      if (c.cao >= 30 && c.sio2 >= 34 && c.al2o3 >= 9) return "C-(N)-A-S-H";
+      if (c.cao <= 8 && c.sio2 >= 60 && c.al2o3 >= 15) return "N-A-S-H";
+      return "Transition";
+    }
+
+    function activePredictionRows(c) {
+      if (!savedPredictions.length) return [];
+      return savedPredictions.filter((row) =>
+        Math.abs(rowValue(row, "Total binder") - c.totalBinderConcrete) < 0.75 &&
+        Math.abs(rowValue(row, "Fine aggregate") - c.fine) < 0.75 &&
+        Math.abs(rowValue(row, "Coarse aggregate") - c.coarse) < 0.75
+      );
+    }
+
+    function nearestSavedPrediction(c, rows) {
+      if (!rows.length) return null;
+      let best = null;
+      let bestDistance = Infinity;
+      for (const row of rows) {
+        const d =
+          Math.pow((rowValue(row, "CaO") - c.modelFeatures.CaO) / 80, 2) +
+          Math.pow((rowValue(row, "SiO2") - c.modelFeatures.SiO2) / 120, 2) +
+          Math.pow((rowValue(row, "MgO") - c.modelFeatures.MgO) / 30, 2) +
+          Math.pow((rowValue(row, "Al2O3") - c.modelFeatures.Al2O3) / 60, 2) +
+          Math.pow((rowValue(row, "Na2O") - c.modelFeatures.Na2O) / 35, 2) +
+          Math.pow((rowValue(row, "water") - c.modelFeatures.water) / 50, 2) +
+          Math.pow((rowValue(row, "Total binder") - c.totalBinderConcrete) / 100, 2) +
+          Math.pow((rowValue(row, "Fine aggregate") - c.fine) / 250, 2) +
+          Math.pow((rowValue(row, "Coarse aggregate") - c.coarse) / 250, 2);
+        if (d < bestDistance) {
+          bestDistance = d;
+          best = row;
+        }
+      }
+      return { row: best, distance: Math.sqrt(bestDistance) };
+    }
+
+    function predict(c, rows) {
+      const nearest = nearestSavedPrediction(c, rows);
+      if (!nearest) return null;
+      const comp = rowToComposition(nearest.row);
+      return {
+        strength: rowValue(nearest.row, "Predicted_Output"),
+        uncertainty: rowValue(nearest.row, "Predicted_Output_Uncertainty"),
+        relativeUncertainty: rowValue(nearest.row, "Predicted_Output_Relative_Uncertainty"),
+        region: classifyRegion(comp),
+        nearestComposition: comp,
+        nearestDistance: nearest.distance
+      };
+    }
+
+    const strengthBins = [
+      { label: "<35", max: 35.0, color: "#fff9d6" },
+      { label: "35-40", max: 40.0, color: "#fff079" },
+      { label: "40-42.5", max: 42.5, color: "#ffd338" },
+      { label: "42.5-45", max: 45.0, color: "#f5a623" },
+      { label: "45-47.5", max: 47.5, color: "#ef7f13" },
+      { label: "47.5-50", max: 50.0, color: "#df3b20" },
+      { label: "50-55", max: 55.0, color: "#b80f1d" },
+      { label: ">55", max: Infinity, color: "#6d0000" }
+    ];
+
+    function strengthColor(value) {
+      return strengthBins.find((bin) => value < bin.max).color;
+    }
+
+    function renderStrengthLegends() {
+      document.querySelectorAll(".legend").forEach((legend) => {
+        legend.innerHTML = `
+          <div class="strength-legend">
+            ${strengthBins.map((bin) => `<span style="background:${bin.color}">${bin.label}</span>`).join("")}
+          </div>
+          <div class="legend-caption">Strength (MPa)</div>
+        `;
+      });
+    }
+
+    function ternaryToXY(a, b, c, w, h) {
+      const pad = 58;
+      const annotationSpace = 112;
+      const side = Math.min(w - annotationSpace - pad * 2, (h - pad * 2) * 2 / Math.sqrt(3));
+      const x0 = pad;
+      const y0 = h - pad;
+      const x1 = x0 + side;
+      const y1 = y0;
+      const x2 = (x0 + x1) / 2;
+      const y2 = y0 - side * Math.sqrt(3) / 2;
+      const total = a + b + c;
+      const x = (a * x0 + b * x1 + c * x2) / total;
+      const y = (a * y0 + b * y1 + c * y2) / total;
+      return { x, y };
+    }
+
+    function drawAxes(ctx, labels) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      const a = ternaryToXY(100, 0, 0, w, h);
+      const b = ternaryToXY(0, 100, 0, w, h);
+      const c = ternaryToXY(0, 0, 100, w, h);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#24313c";
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.lineTo(c.x, c.y);
+      ctx.closePath();
+      ctx.stroke();
+
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(36, 49, 60, 0.18)";
+      for (let v = 20; v < 100; v += 20) {
+        const p1 = ternaryToXY(v, 0, 100 - v, w, h);
+        const p2 = ternaryToXY(v, 100 - v, 0, w, h);
+        const p3 = ternaryToXY(0, v, 100 - v, w, h);
+        const p4 = ternaryToXY(100 - v, v, 0, w, h);
+        const p5 = ternaryToXY(0, 100 - v, v, w, h);
+        const p6 = ternaryToXY(100 - v, 0, v, w, h);
+        [[p1, p2], [p3, p4], [p5, p6]].forEach(([s, e]) => {
+          ctx.beginPath();
+          ctx.moveTo(s.x, s.y);
+          ctx.lineTo(e.x, e.y);
+          ctx.stroke();
+        });
+      }
+
+      ctx.fillStyle = "#25313b";
+      ctx.font = "14px Arial";
+      const tickValues = [0, 25, 50, 75, 100];
+
+      tickValues.forEach((v) => {
+        let p = ternaryToXY(100 - v, 0, v, w, h);
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(v), p.x - 12, p.y);
+
+        p = ternaryToXY(0, 100 - v, v, w, h);
+        ctx.textAlign = "left";
+        ctx.textBaseline = "middle";
+        ctx.fillText(String(v), p.x + 12, p.y);
+
+        p = ternaryToXY(100 - v, v, 0, w, h);
+        ctx.textAlign = "center";
+        ctx.textBaseline = "top";
+        ctx.fillText(String(v), p.x, p.y + 10);
+      });
+
+      ctx.fillStyle = "#17212b";
+      ctx.font = "700 18px Arial";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText(labels[2], c.x, c.y - 20);
+      ctx.textAlign = "right";
+      ctx.fillText(labels[0], a.x - 12, a.y + 24);
+      ctx.textAlign = "left";
+      ctx.fillText(labels[1], b.x + 12, b.y + 24);
+    }
+
+    function drawDashedLine(ctx, start, end, color, width, dash) {
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = width;
+      ctx.setLineDash(dash);
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function drawArrow(ctx, start, end, color) {
+      const angle = Math.atan2(end.y - start.y, end.x - start.x);
+      const size = 8;
+      ctx.save();
+      ctx.strokeStyle = color;
+      ctx.fillStyle = color;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.moveTo(start.x, start.y);
+      ctx.lineTo(end.x, end.y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(end.x, end.y);
+      ctx.lineTo(end.x - size * Math.cos(angle - Math.PI / 6), end.y - size * Math.sin(angle - Math.PI / 6));
+      ctx.lineTo(end.x - size * Math.cos(angle + Math.PI / 6), end.y - size * Math.sin(angle + Math.PI / 6));
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function caSiLinePoints(ratio, w, h) {
+      const caOtoSiO2MassRatio = ratio * 56.077 / 60.0843;
+      const variable = 2;
+      const remaining = 100 - variable;
+      const sio2 = remaining / (1 + caOtoSiO2MassRatio);
+      const cao = remaining - sio2;
+      return {
+        start: ternaryToXY(100, 0, 0, w, h),
+        end: ternaryToXY(variable, sio2, cao, w, h)
+      };
+    }
+
+    function drawLabelBackground(ctx, x, y, text, align, font) {
+      ctx.save();
+      ctx.font = font;
+      const metrics = ctx.measureText(text);
+      const width = metrics.width + 8;
+      const height = 15;
+      const left = align === "center" ? x - width / 2 : align === "right" ? x - width : x;
+      ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+      ctx.fillRect(left, y - height + 2, width, height);
+      ctx.restore();
+    }
+
+    function drawLineLabel(ctx, text, ratio, fraction, offset, font = "700 11px Arial") {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      const points = caSiLinePoints(ratio, w, h);
+      const x = points.start.x + (points.end.x - points.start.x) * fraction;
+      const y = points.start.y + (points.end.y - points.start.y) * fraction;
+      const angle = Math.atan2(points.end.y - points.start.y, points.end.x - points.start.x);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+      ctx.fillStyle = "#2c3138";
+      ctx.font = font;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "bottom";
+      drawLabelBackground(ctx, 0, offset, text, "center", font);
+      ctx.fillText(text, 0, offset);
+      ctx.restore();
+    }
+
+    const phaseCompositionAnchors = {
+      csh: { cao: 40, sio2: 41, mgo: 1.5, al2o3: 13, na2o: 4.5 },
+      nash: { cao: 2, sio2: 69, mgo: 1, al2o3: 20, na2o: 8 }
+    };
+
+    function drawFigure4Guides(ctx, phaseAnchors) {
+      const w = ctx.canvas.width;
+      const h = ctx.canvas.height;
+      const guideSpecs = [
+        { ratio: 0.8, color: "rgba(70, 78, 86, 0.55)", width: 1.3, dash: [5, 5] },
+        { ratio: 1.0, color: "rgba(23, 30, 36, 0.82)", width: 1.6, dash: [7, 4] },
+        { ratio: 1.5, color: "rgba(70, 78, 86, 0.55)", width: 1.3, dash: [5, 5] }
+      ];
+
+      guideSpecs.forEach((spec) => {
+        const points = caSiLinePoints(spec.ratio, w, h);
+        drawDashedLine(ctx, points.start, points.end, spec.color, spec.width, spec.dash);
+      });
+
+      drawLineLabel(ctx, "Ca/Si=1.0", 1.0, 0.47, -7, "700 11px Arial");
+      drawLineLabel(ctx, "0.8", 0.8, 0.60, -5, "700 10px Arial");
+      drawLineLabel(ctx, "1.5", 1.5, 0.58, -5, "700 10px Arial");
+
+      const cshAnchor = ternaryToXY(phaseAnchors.csh[0], phaseAnchors.csh[1], phaseAnchors.csh[2], w, h);
+      const nashAnchor = ternaryToXY(phaseAnchors.nash[0], phaseAnchors.nash[1], phaseAnchors.nash[2], w, h);
+      const cshText = { x: w - 150, y: Math.max(130, Math.min(h - 190, cshAnchor.y - 18)) };
+      const nashText = { x: w - 150, y: Math.max(190, Math.min(h - 110, nashAnchor.y + 4)) };
+
+      ctx.save();
+      ctx.fillStyle = "#b32922";
+      ctx.font = "700 15px Arial";
+      ctx.textAlign = "left";
+      ctx.textBaseline = "middle";
+      drawLabelBackground(ctx, cshText.x - 4, cshText.y + 10, "C-(N)-A-S-H", "left", "700 15px Arial");
+      drawLabelBackground(ctx, nashText.x - 4, nashText.y + 10, "N-A-S-H", "left", "700 15px Arial");
+      ctx.fillText("Dominated by", cshText.x, cshText.y - 11);
+      ctx.fillText("C-(N)-A-S-H", cshText.x, cshText.y + 10);
+      ctx.fillText("Dominated by", nashText.x, nashText.y - 11);
+      ctx.fillText("N-A-S-H", nashText.x, nashText.y + 10);
+      ctx.restore();
+
+      drawArrow(ctx, { x: cshText.x - 8, y: cshText.y }, cshAnchor, "#b32922");
+      drawArrow(ctx, { x: nashText.x - 8, y: nashText.y + 8 }, nashAnchor, "#b32922");
+    }
+
+    function drawPoint(ctx, coords, labels) {
+      const p = ternaryToXY(coords[0], coords[1], coords[2], ctx.canvas.width, ctx.canvas.height);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 8, 0, Math.PI * 2);
+      ctx.fillStyle = "#101820";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#fff";
+      ctx.stroke();
+      ctx.font = "700 13px Arial";
+      ctx.fillStyle = "#101820";
+      ctx.textAlign = "center";
+      ctx.fillText("selected", p.x, p.y - 14);
+      ctx.restore();
+    }
+
+    function drawOptimizedPoint(ctx, coords) {
+      if (!coords) return;
+      const p = ternaryToXY(coords[0], coords[1], coords[2], ctx.canvas.width, ctx.canvas.height);
+      const size = 12;
+      ctx.save();
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y - size);
+      ctx.lineTo(p.x + size, p.y);
+      ctx.lineTo(p.x, p.y + size);
+      ctx.lineTo(p.x - size, p.y);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(25, 118, 210, 0.12)";
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#1976d2";
+      ctx.stroke();
+      ctx.font = "700 13px Arial";
+      ctx.fillStyle = "#1976d2";
+      ctx.textAlign = "center";
+      ctx.fillText("optimised", p.x, p.y + 28);
+      ctx.restore();
+    }
+
+    function drawMap(canvasId, type, labels, rows, rowCoords, selectedCoords, phaseAnchors, optimizedCoords) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext("2d");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const values = rows.length
+        ? rows.map((row) => {
+            const [a, b, c] = rowCoords(row);
+            return {
+              a,
+              b,
+              c,
+              value: type === "strength" ? rowValue(row, "Predicted_Output") : rowValue(row, "Predicted_Output_Uncertainty")
+            };
+          })
+        : [];
+      ctx.save();
+      ctx.globalAlpha = 0.4;
+      values.sort((left, right) => left.value - right.value).forEach((d) => {
+        const p = ternaryToXY(d.a, d.b, d.c, canvas.width, canvas.height);
+        ctx.fillStyle = strengthColor(d.value);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 5.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      ctx.restore();
+      drawAxes(ctx, labels);
+      if (!values.length) {
+        ctx.save();
+        ctx.fillStyle = "#6d7782";
+        ctx.font = "700 18px Arial";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText("No matching data for selected concrete mix scale", canvas.width / 2, canvas.height / 2);
+        ctx.restore();
+      }
+      drawFigure4Guides(ctx, phaseAnchors);
+      drawOptimizedPoint(ctx, optimizedCoords);
+      drawPoint(ctx, selectedCoords, labels);
+    }
+
+    function ternaryCoords(values) {
+      const total = values.reduce((sum, value) => sum + value, 0) || 1;
+      return values.map((value) => value / total * 100);
+    }
+
+    function phaseAnchorsFor(keys) {
+      return {
+        csh: ternaryCoords(keys.map((key) => phaseCompositionAnchors.csh[key])),
+        nash: ternaryCoords(keys.map((key) => phaseCompositionAnchors.nash[key]))
+      };
+    }
+
+    function renderComputedInputs(c) {
+      document.getElementById("p1DorValue").textContent = `${c.p1DegreeReaction.toFixed(0)}%`;
+      document.getElementById("p2DorValue").textContent = `${c.p2DegreeReaction.toFixed(0)}%`;
+      const computed = document.getElementById("computedOxides");
+      computed.innerHTML = `
+        <span>Total binder<br>${c.totalBinderMass.toFixed(1)} g</span>
+        <span>Na2O-equivalent<br>${c.activatorNa2O.toFixed(1)} g</span>
+        <span>Water/binder<br>${(c.totalWater / c.totalBinderMass).toFixed(2)}</span>
+        <span>DoR P1/P2<br>${c.p1DegreeReaction.toFixed(0)}% / ${c.p2DegreeReaction.toFixed(0)}%</span>
+      `;
+      document.getElementById("computedNote").textContent =
+        `Per 100 g mineral precursors. Na2O-equivalent includes ${c.na2oFromNaOH.toFixed(1)} g from NaOH and ${c.silicateNa2O.toFixed(1)} g from sodium silicate. Total water is ${c.totalWater.toFixed(1)} g. Each DoR is applied only to oxides from its own precursor; activator-derived Na2O and SiO2 are not reduced.`;
+    }
+
+    function candidateRange(start, end, step) {
+      const values = [];
+      for (let value = start; value <= end + 1e-9; value += step) {
+        values.push(Number(value.toFixed(3)));
+      }
+      return values;
+    }
+
+    function candidateDistanceToRow(candidate, row) {
+      return Math.sqrt(
+        Math.pow((rowValue(row, "CaO") - candidate.modelFeatures.CaO) / 80, 2) +
+        Math.pow((rowValue(row, "SiO2") - candidate.modelFeatures.SiO2) / 120, 2) +
+        Math.pow((rowValue(row, "MgO") - candidate.modelFeatures.MgO) / 30, 2) +
+        Math.pow((rowValue(row, "Al2O3") - candidate.modelFeatures.Al2O3) / 60, 2) +
+        Math.pow((rowValue(row, "Na2O") - candidate.modelFeatures.Na2O) / 35, 2) +
+        Math.pow((rowValue(row, "water") - candidate.modelFeatures.water) / 50, 2)
+      );
+    }
+
+    function nearestHotspotDistance(candidate, hotspotRows) {
+      if (!hotspotRows.length) return Infinity;
+      let bestDistance = Infinity;
+      for (const row of hotspotRows) {
+        bestDistance = Math.min(bestDistance, candidateDistanceToRow(candidate, row));
+      }
+      return bestDistance;
+    }
+
+    function strongestRows(rows, count) {
+      return [...rows]
+        .sort((left, right) => rowValue(right, "Predicted_Output") - rowValue(left, "Predicted_Output"))
+        .slice(0, count);
+    }
+
+    function isBetterActivatorCandidate(candidate, best) {
+      if (!best) return true;
+      if (candidate.strength > best.strength + 0.2) return true;
+      if (Math.abs(candidate.strength - best.strength) <= 0.2 && candidate.hotspotDistance < best.hotspotDistance) return true;
+      return false;
+    }
+
+    function evaluateActivatorCandidate(baseInputs, activeRows, hotspotRows, dryNaOH, silicateSolution) {
+      const candidate = readInputs({ ...baseInputs, dryNaOH, silicateSolution });
+      const pred = predict(candidate, activeRows);
+      if (!pred) return null;
+      return {
+        dryNaOH,
+        silicateSolution,
+        strength: pred.strength,
+        uncertainty: pred.uncertainty,
+        hotspotDistance: nearestHotspotDistance(candidate, hotspotRows)
+      };
+    }
+
+    function findBestActivator(baseInputs, activeRows, fixed) {
+      let best = null;
+      const hotspotRows = strongestRows(activeRows, 160);
+      const promising = [];
+      const consider = (dryNaOH, silicateSolution) => {
+        const result = evaluateActivatorCandidate(baseInputs, activeRows, hotspotRows, dryNaOH, silicateSolution);
+        if (!result) return;
+        promising.push(result);
+        if (isBetterActivatorCandidate(result, best)) best = result;
+      };
+
+      const coarseNaOH = fixed.naoh ? [baseInputs.dryNaOH] : candidateRange(0, 40, 2);
+      const coarseSilicate = fixed.silicate ? [baseInputs.silicateSolution] : candidateRange(0, 100, 5);
+      coarseNaOH.forEach((dryNaOH) => coarseSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
+
+      if (!best || (fixed.naoh && fixed.silicate)) return best;
+
+      const seeds = promising
+        .sort((left, right) => {
+          if (Math.abs(right.strength - left.strength) > 0.2) return right.strength - left.strength;
+          return left.hotspotDistance - right.hotspotDistance;
+        })
+        .slice(0, 8);
+
+      seeds.forEach((seed) => {
+        const fineNaOH = fixed.naoh
+          ? [baseInputs.dryNaOH]
+          : candidateRange(Math.max(0, seed.dryNaOH - 2), Math.min(40, seed.dryNaOH + 2), 0.5);
+        const fineSilicate = fixed.silicate
+          ? [baseInputs.silicateSolution]
+          : candidateRange(Math.max(0, seed.silicateSolution - 5), Math.min(100, seed.silicateSolution + 5), 1);
+        fineNaOH.forEach((dryNaOH) => fineSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
+      });
+
+      const finalNaOH = fixed.naoh
+        ? [baseInputs.dryNaOH]
+        : candidateRange(Math.max(0, best.dryNaOH - 1), Math.min(40, best.dryNaOH + 1), 0.25);
+      const finalSilicate = fixed.silicate
+        ? [baseInputs.silicateSolution]
+        : candidateRange(Math.max(0, best.silicateSolution - 2), Math.min(100, best.silicateSolution + 2), 0.5);
+      finalNaOH.forEach((dryNaOH) => finalSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
+      return best;
+    }
+
+    function setOptimizeStatus(message) {
+      document.getElementById("optimizeStatus").textContent = message;
+    }
+
+    function optimiseActivator() {
+      const baseInputs = readInputs();
+      if (activeBinderData !== String(baseInputs.totalBinderConcrete)) {
+        setOptimizeStatus("Loading matching binder data...");
+        loadPredictionDataForBinder(baseInputs.totalBinderConcrete, optimiseActivator);
+        return;
+      }
+
+      const activeRows = activePredictionRows(baseInputs);
+      if (!activeRows.length) {
+        setOptimizeStatus("No matching prediction data for the selected concrete mix scale.");
+        return;
+      }
+
+      const button = document.getElementById("optimizeActivator");
+      const fixed = {
+        naoh: document.getElementById("fixNaOH").checked,
+        silicate: document.getElementById("fixSilicate").checked
+      };
+      button.disabled = true;
+      button.textContent = "Optimising...";
+      setOptimizeStatus("Searching activator candidates and refining toward the nearest high-strength hotspot...");
+
+      setTimeout(() => {
+        const best = findBestActivator(baseInputs, activeRows, fixed);
+        button.disabled = false;
+        button.textContent = "Optimise activator";
+        if (!best) {
+          setOptimizeStatus("No activator suggestion found for the selected condition.");
+          return;
+        }
+        document.getElementById("dryNaOH").value = best.dryNaOH;
+        document.getElementById("silicateSolution").value = best.silicateSolution;
+        lastOptimizedDesign = readInputs({ ...baseInputs, dryNaOH: best.dryNaOH, silicateSolution: best.silicateSolution });
+        setOptimizeStatus(`Suggested: ${best.dryNaOH.toFixed(1)} g NaOH and ${best.silicateSolution.toFixed(1)} g sodium silicate solution; predicted strength ${best.strength.toFixed(1)} MPa. Hotspot distance ${best.hotspotDistance.toFixed(2)}.`);
+        refresh();
+      }, 20);
+    }
+
+    function update() {
+      const c = readInputs();
+      renderComputedInputs(c);
+      if (activeBinderData !== String(c.totalBinderConcrete)) {
+        document.getElementById("strengthMetric").textContent = "Loading...";
+        document.getElementById("uncertaintyMetric").textContent = "-- MPa";
+        document.getElementById("regionMetric").textContent = "Loading data";
+        return;
+      }
+      const activeRows = activePredictionRows(c);
+      const pred = predict(c, activeRows);
+      const optimizedDesign = lastOptimizedDesign &&
+        lastOptimizedDesign.totalBinderConcrete === c.totalBinderConcrete &&
+        lastOptimizedDesign.fine === c.fine &&
+        lastOptimizedDesign.coarse === c.coarse
+          ? lastOptimizedDesign
+          : null;
+      document.getElementById("strengthMetric").textContent = pred ? `${pred.strength.toFixed(1)} MPa` : "-- MPa";
+      document.getElementById("uncertaintyMetric").textContent = pred ? `+/- ${pred.uncertainty.toFixed(1)} MPa` : "-- MPa";
+      document.getElementById("regionMetric").textContent = pred ? pred.region : "No matching data";
+
+      drawMap(
+        "strengthMap",
+        "strength",
+        ["Al2O3", "SiO2", "CaO"],
+        activeRows,
+        (row) => ternaryCoords([rowValue(row, "Al2O3"), rowValue(row, "SiO2"), rowValue(row, "CaO")]),
+        ternaryCoords([c.al2o3, c.sio2, c.cao]),
+        phaseAnchorsFor(["al2o3", "sio2", "cao"]),
+        optimizedDesign ? ternaryCoords([optimizedDesign.al2o3, optimizedDesign.sio2, optimizedDesign.cao]) : null
+      );
+      drawMap(
+        "naMap",
+        "strength",
+        ["Na2O", "SiO2", "CaO"],
+        activeRows,
+        (row) => ternaryCoords([rowValue(row, "Na2O"), rowValue(row, "SiO2"), rowValue(row, "CaO")]),
+        ternaryCoords([c.na2o, c.sio2, c.cao]),
+        phaseAnchorsFor(["na2o", "sio2", "cao"]),
+        optimizedDesign ? ternaryCoords([optimizedDesign.na2o, optimizedDesign.sio2, optimizedDesign.cao]) : null
+      );
+      drawMap(
+        "mgMap",
+        "strength",
+        ["MgO", "SiO2", "CaO"],
+        activeRows,
+        (row) => ternaryCoords([rowValue(row, "MgO"), rowValue(row, "SiO2"), rowValue(row, "CaO")]),
+        ternaryCoords([c.mgo, c.sio2, c.cao]),
+        phaseAnchorsFor(["mgo", "sio2", "cao"]),
+        optimizedDesign ? ternaryCoords([optimizedDesign.mgo, optimizedDesign.sio2, optimizedDesign.cao]) : null
+      );
+    }
+
+    function refresh() {
+      const binder = document.getElementById("totalBinderConcrete").value;
+      loadPredictionDataForBinder(binder, update);
+    }
+
+    ids.forEach((id) => {
+      const element = document.getElementById(id);
+      element.addEventListener("input", refresh);
+      element.addEventListener("change", refresh);
+    });
+    document.getElementById("reset").addEventListener("click", () => {
+      clearableInputIds.forEach((id) => document.getElementById(id).value = 0);
+      document.getElementById("fixNaOH").checked = false;
+      document.getElementById("fixSilicate").checked = false;
+      lastOptimizedDesign = null;
+      setOptimizeStatus("");
+      refresh();
+    });
+    document.getElementById("optimizeActivator").addEventListener("click", optimiseActivator);
+
+    renderStrengthLegends();
+    syncPredictionDataFromWindow();
+    refresh();
+  </script>
+</body>
+</html>
+
