@@ -356,6 +356,34 @@
       line-height: 1.2;
     }
 
+    .result-guidance {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: -4px 0 16px;
+    }
+
+    .result-card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: #fffdf8;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .result-card strong {
+      display: block;
+      margin-bottom: 4px;
+      color: #7b2f27;
+      font-size: 13px;
+    }
+
+    .result-card span {
+      color: var(--muted);
+    }
+
     .plot-grid {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -787,14 +815,14 @@
           <label for="dryNaOH">Dry mass of NaOH, g per 100 g total mineral precursors</label>
           <div class="input-with-fix">
             <input id="dryNaOH" type="number" min="0" max="40" value="4" step="0.1">
-            <label class="fix-toggle" for="fixNaOH">Fix <input id="fixNaOH" type="checkbox"></label>
+            <label class="fix-toggle" for="fixNaOH">Fix when optimise <input id="fixNaOH" type="checkbox"></label>
           </div>
         </div>
         <div class="field">
           <label for="silicateSolution">Total sodium silicate solution added, g per 100 g total mineral precursors</label>
           <div class="input-with-fix">
             <input id="silicateSolution" type="number" min="0" max="100" value="15" step="0.1">
-            <label class="fix-toggle" for="fixSilicate">Fix <input id="fixSilicate" type="checkbox"></label>
+            <label class="fix-toggle" for="fixSilicate">Fix when optimise <input id="fixSilicate" type="checkbox"></label>
           </div>
         </div>
         <div class="field">
@@ -807,7 +835,17 @@
         </div>
         <div class="field">
           <label for="additionalWater">Additional water added, g per 100 g total mineral precursors</label>
-          <input id="additionalWater" type="number" min="0" max="100" value="30" step="0.1">
+          <div class="input-with-fix">
+            <input id="additionalWater" type="number" min="0" max="100" value="30" step="0.1">
+            <label class="fix-toggle" for="fixAdditionalWater">Fix when optimise <input id="fixAdditionalWater" type="checkbox"></label>
+          </div>
+        </div>
+        <div class="field">
+          <label for="targetWaterBinder">Target water/binder ratio for optimisation</label>
+          <div class="input-with-fix">
+            <input id="targetWaterBinder" type="number" min="0.05" max="0.8" value="0.30" step="0.01">
+            <label class="fix-toggle" for="fixTargetWaterBinder">Fix when optimise <input id="fixTargetWaterBinder" type="checkbox"></label>
+          </div>
         </div>
 
         <div class="computed">
@@ -816,8 +854,10 @@
           <p class="small" id="computedNote"></p>
         </div>
 
-        <button id="optimizeActivator" type="button">Optimise activator</button>
+        <button id="optimizeActivator" type="button">Optimise activator / water</button>
         <p class="optimize-status" id="optimizeStatus"></p>
+
+        <button id="optimizePrecursor" type="button">Optimise precursor proportions</button>
 
         <button id="reset">Reset</button>
       </aside>
@@ -835,6 +875,21 @@
           <div class="metric">
             <span>Predicted region</span>
             <strong id="regionMetric">--</strong>
+          </div>
+        </div>
+
+        <div class="result-guidance">
+          <div class="result-card">
+            <strong>Current input prediction</strong>
+            <span id="currentPredictionNote">Enter a mix design to locate the nearest saved GPR prediction point.</span>
+          </div>
+          <div class="result-card">
+            <strong>Latest optimisation suggestion</strong>
+            <span id="optimizationSummary">No optimisation has been run yet.</span>
+          </div>
+          <div class="result-card">
+            <strong>Applicability check</strong>
+            <span id="applicabilityNote">Waiting for a matching saved GPR point.</span>
           </div>
         </div>
 
@@ -882,7 +937,7 @@
                   <div class="flow-card input">
                     <span>2</span>
                     <strong>Activator and water inputs</strong>
-                    <em>NaOH, sodium silicate solution, modulus, and water</em>
+                    <em>NaOH, sodium silicate solution, modulus, added water, and optional target water/binder</em>
                   </div>
                   <div class="flow-card input">
                     <span>3</span>
@@ -953,7 +1008,7 @@
 
               <div class="flow-row">
                 <div class="flow-label">Outputs</div>
-                <div class="flow-items three">
+                <div class="flow-items">
                   <div class="flow-card output">
                     <span>9A</span>
                     <strong>Show predicted strength and uncertainty</strong>
@@ -964,7 +1019,13 @@
                   </div>
                   <div class="flow-card output">
                     <span>9C</span>
-                    <strong>Search activator options and suggest highest-strength dosage</strong>
+                    <strong>Optimise activator / water</strong>
+                    <em>Search NaOH, sodium silicate, and optional water near C-(N)-A-S-H and N-A-S-H zones</em>
+                  </div>
+                  <div class="flow-card output">
+                    <span>9D</span>
+                    <strong>Optimise precursor proportions</strong>
+                    <em>Vary precursor 1 / precursor 2 ratio and suggest the stronger reachable design route</em>
                   </div>
                 </div>
               </div>
@@ -993,7 +1054,7 @@
             </details>
             <details>
               <summary>How should the optimisation result be interpreted?</summary>
-              <p>The optimisation searches the saved GPR prediction data under the selected binder, fine aggregate, and coarse aggregate condition. The optimised marker shows the suggested activator position in each ternary projection, and should be assessed together with the predicted strength and uncertainty.</p>
+              <p>There are two optimisation modes. <strong>Optimise activator / water</strong> keeps the selected precursor proportions fixed and searches practical NaOH, sodium silicate, and optional additional-water dosages. <strong>Optimise precursor proportions</strong> also varies the precursor 1 / precursor 2 ratio before suggesting a practical starting mix. Both modes compare candidates near the C-(N)-A-S-H and N-A-S-H design zones, then select the stronger reachable saved GPR prediction under the chosen binder, fine aggregate, and coarse aggregate condition. If target water/binder is fixed, additional water is calculated to match that ratio as closely as possible. The optimised marker is a suggested reference point, not a guaranteed optimum, and should be assessed with the predicted strength, uncertainty, and distance from the target chemistry zone.</p>
             </details>
           </div>
 
@@ -1025,19 +1086,19 @@
     const ids = [
       "p1Share", "p1DegreeReaction", "p1CaO", "p1SiO2", "p1Al2O3", "p1MgO", "p1Na2O",
       "p2Share", "p2DegreeReaction", "p2CaO", "p2SiO2", "p2Al2O3", "p2MgO", "p2Na2O",
-      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater",
+      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater", "targetWaterBinder",
       "totalBinderConcrete", "fineAggregate", "coarseAggregate"
     ];
     const defaults = {
       p1Share: 70, p1DegreeReaction: 100, p1CaO: 42, p1SiO2: 35, p1Al2O3: 13, p1MgO: 8, p1Na2O: 0,
       p2Share: 30, p2DegreeReaction: 100, p2CaO: 2, p2SiO2: 60, p2Al2O3: 28, p2MgO: 1, p2Na2O: 0.5,
-      dryNaOH: 4, silicateSolution: 15, activatorModulus: 1.0, silicateWater: 60, additionalWater: 30,
+      dryNaOH: 4, silicateSolution: 15, activatorModulus: 1.0, silicateWater: 60, additionalWater: 30, targetWaterBinder: 0.30,
       totalBinderConcrete: 450, fineAggregate: 800, coarseAggregate: 1000
     };
     const clearableInputIds = [
       "p1Share", "p1DegreeReaction", "p1CaO", "p1SiO2", "p1Al2O3", "p1MgO", "p1Na2O",
       "p2Share", "p2DegreeReaction", "p2CaO", "p2SiO2", "p2Al2O3", "p2MgO", "p2Na2O",
-      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater"
+      "dryNaOH", "silicateSolution", "activatorModulus", "silicateWater", "additionalWater", "targetWaterBinder"
     ];
     const oxides = ["cao", "sio2", "al2o3", "mgo", "na2o"];
     let savedPredictions = window.STRENGTH_PREDICTIONS || [];
@@ -1050,6 +1111,7 @@
     let activeBinderData = String(predictionMeta.binder || 450);
     let dataLoadRequest = 0;
     let lastOptimizedDesign = null;
+    let lastOptimizationSummary = null;
     const molarMass = { naoh: 39.997, na2o: 61.9789, sio2: 60.0843 };
 
     function rowValue(row, column) {
@@ -1281,6 +1343,8 @@
         strength: rowValue(nearest.row, "Predicted_Output"),
         uncertainty: rowValue(nearest.row, "Predicted_Output_Uncertainty"),
         relativeUncertainty: rowValue(nearest.row, "Predicted_Output_Relative_Uncertainty"),
+        nearestTrainingDistance: rowValue(nearest.row, "Nearest_Training_Distance"),
+        withinTrainingDistance: rowValue(nearest.row, "Within_Training_Distance"),
         region: classifyRegion(comp),
         nearestComposition: comp,
         nearestDistance: nearest.distance
@@ -1639,87 +1703,253 @@
       );
     }
 
-    function nearestHotspotDistance(candidate, hotspotRows) {
-      if (!hotspotRows.length) return Infinity;
-      let bestDistance = Infinity;
-      for (const row of hotspotRows) {
-        bestDistance = Math.min(bestDistance, candidateDistanceToRow(candidate, row));
-      }
-      return bestDistance;
-    }
-
-    function strongestRows(rows, count) {
-      return [...rows]
-        .sort((left, right) => rowValue(right, "Predicted_Output") - rowValue(left, "Predicted_Output"))
-        .slice(0, count);
+    function candidateDistanceToPhaseZone(candidate, zoneKey) {
+      const anchor = phaseCompositionAnchors[zoneKey];
+      return Math.sqrt(
+        Math.pow((candidate.reactedModelInputs.cao - anchor.cao) / 8, 2) +
+        Math.pow((candidate.reactedModelInputs.sio2 - anchor.sio2) / 10, 2) +
+        Math.pow((candidate.reactedModelInputs.al2o3 - anchor.al2o3) / 7, 2) +
+        Math.pow((candidate.reactedModelInputs.na2o - anchor.na2o) / 4, 2) +
+        Math.pow((candidate.reactedModelInputs.mgo - anchor.mgo) / 4, 2)
+      );
     }
 
     function isBetterActivatorCandidate(candidate, best) {
       if (!best) return true;
       if (candidate.strength > best.strength + 0.2) return true;
-      if (Math.abs(candidate.strength - best.strength) <= 0.2 && candidate.hotspotDistance < best.hotspotDistance) return true;
+      if (Math.abs(candidate.strength - best.strength) <= 0.2 && candidate.zoneDistance < best.zoneDistance - 0.015) return true;
+      if (
+        Math.abs(candidate.strength - best.strength) <= 0.2 &&
+        Math.abs(candidate.zoneDistance - best.zoneDistance) <= 0.015 &&
+        candidate.uncertainty < best.uncertainty
+      ) return true;
       return false;
     }
 
-    function evaluateActivatorCandidate(baseInputs, activeRows, hotspotRows, dryNaOH, silicateSolution) {
-      const candidate = readInputs({ ...baseInputs, dryNaOH, silicateSolution });
+    function evaluateActivatorCandidate(baseInputs, activeRows, zoneKey, dryNaOH, silicateSolution, additionalWater) {
+      const candidate = readInputs({ ...baseInputs, dryNaOH, silicateSolution, additionalWater });
       const pred = predict(candidate, activeRows);
       if (!pred) return null;
       return {
         dryNaOH,
         silicateSolution,
+        additionalWater,
+        zone: zoneKey === "csh" ? "C-(N)-A-S-H" : "N-A-S-H",
         strength: pred.strength,
         uncertainty: pred.uncertainty,
-        hotspotDistance: nearestHotspotDistance(candidate, hotspotRows)
+        zoneDistance: candidateDistanceToPhaseZone(candidate, zoneKey)
       };
     }
 
+    function keepNearestZoneCandidate(list, entry, limit) {
+      if (list.length < limit) {
+        list.push(entry);
+        return;
+      }
+      let worstIndex = 0;
+      for (let index = 1; index < list.length; index += 1) {
+        if (list[index].zoneDistance > list[worstIndex].zoneDistance) worstIndex = index;
+      }
+      if (entry.zoneDistance < list[worstIndex].zoneDistance) list[worstIndex] = entry;
+    }
+
+    function additionalWaterForTargetRatio(baseInputs, dryNaOH, silicateSolution) {
+      const target = Math.max(0.05, Math.min(0.8, baseInputs.targetWaterBinder));
+      const silicateWaterMass = silicateSolution * baseInputs.silicateWater / 100;
+      const denominator = Math.max(0.0001, 1 - target);
+      const required = (target * (100 + dryNaOH + silicateSolution) - silicateWaterMass) / denominator;
+      return Math.max(0, Math.min(100, Number(required.toFixed(3))));
+    }
+
     function findBestActivator(baseInputs, activeRows, fixed) {
-      let best = null;
-      const hotspotRows = strongestRows(activeRows, 160);
-      const promising = [];
-      const consider = (dryNaOH, silicateSolution) => {
-        const result = evaluateActivatorCandidate(baseInputs, activeRows, hotspotRows, dryNaOH, silicateSolution);
-        if (!result) return;
-        promising.push(result);
-        if (isBetterActivatorCandidate(result, best)) best = result;
-      };
+      const naohRange = fixed.naoh ? [baseInputs.dryNaOH] : candidateRange(0, 40, 0.25);
+      const silicateRange = fixed.silicate ? [baseInputs.silicateSolution] : candidateRange(0, 100, 0.5);
+      const zoneCandidates = { csh: [], nash: [] };
 
-      const coarseNaOH = fixed.naoh ? [baseInputs.dryNaOH] : candidateRange(0, 40, 2);
-      const coarseSilicate = fixed.silicate ? [baseInputs.silicateSolution] : candidateRange(0, 100, 5);
-      coarseNaOH.forEach((dryNaOH) => coarseSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
-
-      if (!best || (fixed.naoh && fixed.silicate)) return best;
-
-      const seeds = promising
-        .sort((left, right) => {
-          if (Math.abs(right.strength - left.strength) > 0.2) return right.strength - left.strength;
-          return left.hotspotDistance - right.hotspotDistance;
-        })
-        .slice(0, 8);
-
-      seeds.forEach((seed) => {
-        const fineNaOH = fixed.naoh
-          ? [baseInputs.dryNaOH]
-          : candidateRange(Math.max(0, seed.dryNaOH - 2), Math.min(40, seed.dryNaOH + 2), 0.5);
-        const fineSilicate = fixed.silicate
-          ? [baseInputs.silicateSolution]
-          : candidateRange(Math.max(0, seed.silicateSolution - 5), Math.min(100, seed.silicateSolution + 5), 1);
-        fineNaOH.forEach((dryNaOH) => fineSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
+      naohRange.forEach((dryNaOH) => {
+        silicateRange.forEach((silicateSolution) => {
+          const waterRange = fixed.targetWaterBinder
+            ? [additionalWaterForTargetRatio(baseInputs, dryNaOH, silicateSolution)]
+            : fixed.water
+              ? [baseInputs.additionalWater]
+              : candidateRange(0, 100, 2);
+          waterRange.forEach((additionalWater) => {
+            const candidate = readInputs({ ...baseInputs, dryNaOH, silicateSolution, additionalWater });
+            keepNearestZoneCandidate(zoneCandidates.csh, {
+              dryNaOH,
+              silicateSolution,
+              additionalWater,
+              zoneDistance: candidateDistanceToPhaseZone(candidate, "csh")
+            }, 220);
+            keepNearestZoneCandidate(zoneCandidates.nash, {
+              dryNaOH,
+              silicateSolution,
+              additionalWater,
+              zoneDistance: candidateDistanceToPhaseZone(candidate, "nash")
+            }, 220);
+          });
+        });
       });
 
-      const finalNaOH = fixed.naoh
-        ? [baseInputs.dryNaOH]
-        : candidateRange(Math.max(0, best.dryNaOH - 1), Math.min(40, best.dryNaOH + 1), 0.25);
-      const finalSilicate = fixed.silicate
-        ? [baseInputs.silicateSolution]
-        : candidateRange(Math.max(0, best.silicateSolution - 2), Math.min(100, best.silicateSolution + 2), 0.5);
-      finalNaOH.forEach((dryNaOH) => finalSilicate.forEach((silicateSolution) => consider(dryNaOH, silicateSolution)));
+      const bestByZone = ["csh", "nash"].map((zoneKey) => {
+        const shortlist = zoneCandidates[zoneKey]
+          .sort((left, right) => left.zoneDistance - right.zoneDistance)
+          .slice(0, 160);
+        let best = null;
+        shortlist.forEach((candidate) => {
+          const result = evaluateActivatorCandidate(
+            baseInputs,
+            activeRows,
+            zoneKey,
+            candidate.dryNaOH,
+            candidate.silicateSolution,
+            candidate.additionalWater
+          );
+          if (result && isBetterActivatorCandidate(result, best)) best = result;
+        });
+        return best;
+      }).filter(Boolean);
+
+      let best = null;
+      bestByZone.forEach((candidate) => {
+        if (isBetterActivatorCandidate(candidate, best)) best = candidate;
+      });
+      return best;
+    }
+
+    function evaluatePrecursorCandidate(baseInputs, activeRows, zoneKey, p1Share, dryNaOH, silicateSolution, additionalWater) {
+      const candidate = readInputs({
+        ...baseInputs,
+        p1Share,
+        p2Share: 100 - p1Share,
+        dryNaOH,
+        silicateSolution,
+        additionalWater
+      });
+      const pred = predict(candidate, activeRows);
+      if (!pred) return null;
+      return {
+        p1Share,
+        p2Share: 100 - p1Share,
+        dryNaOH,
+        silicateSolution,
+        additionalWater,
+        zone: zoneKey === "csh" ? "C-(N)-A-S-H" : "N-A-S-H",
+        strength: pred.strength,
+        uncertainty: pred.uncertainty,
+        zoneDistance: candidateDistanceToPhaseZone(candidate, zoneKey),
+        nearestDistance: pred.nearestDistance
+      };
+    }
+
+    function findBestPrecursorProposal(baseInputs, activeRows, fixed) {
+      const p1Range = candidateRange(0, 100, 5);
+      const naohRange = fixed.naoh ? [baseInputs.dryNaOH] : candidateRange(0, 40, 2);
+      const silicateRange = fixed.silicate ? [baseInputs.silicateSolution] : candidateRange(0, 100, 5);
+      const zoneCandidates = { csh: [], nash: [] };
+
+      p1Range.forEach((p1Share) => {
+        naohRange.forEach((dryNaOH) => {
+          silicateRange.forEach((silicateSolution) => {
+            const waterRange = fixed.targetWaterBinder
+              ? [additionalWaterForTargetRatio(baseInputs, dryNaOH, silicateSolution)]
+              : fixed.water
+                ? [baseInputs.additionalWater]
+                : candidateRange(0, 100, 10);
+            waterRange.forEach((additionalWater) => {
+              const candidate = readInputs({
+                ...baseInputs,
+                p1Share,
+                p2Share: 100 - p1Share,
+                dryNaOH,
+                silicateSolution,
+                additionalWater
+              });
+              keepNearestZoneCandidate(zoneCandidates.csh, {
+                p1Share,
+                dryNaOH,
+                silicateSolution,
+                additionalWater,
+                zoneDistance: candidateDistanceToPhaseZone(candidate, "csh")
+              }, 260);
+              keepNearestZoneCandidate(zoneCandidates.nash, {
+                p1Share,
+                dryNaOH,
+                silicateSolution,
+                additionalWater,
+                zoneDistance: candidateDistanceToPhaseZone(candidate, "nash")
+              }, 260);
+            });
+          });
+        });
+      });
+
+      const bestByZone = ["csh", "nash"].map((zoneKey) => {
+        const shortlist = zoneCandidates[zoneKey]
+          .sort((left, right) => left.zoneDistance - right.zoneDistance)
+          .slice(0, 180);
+        let best = null;
+        shortlist.forEach((candidate) => {
+          const result = evaluatePrecursorCandidate(
+            baseInputs,
+            activeRows,
+            zoneKey,
+            candidate.p1Share,
+            candidate.dryNaOH,
+            candidate.silicateSolution,
+            candidate.additionalWater
+          );
+          if (result && isBetterActivatorCandidate(result, best)) best = result;
+        });
+        return best;
+      }).filter(Boolean);
+
+      let best = null;
+      bestByZone.forEach((candidate) => {
+        if (isBetterActivatorCandidate(candidate, best)) best = candidate;
+      });
       return best;
     }
 
     function setOptimizeStatus(message) {
       document.getElementById("optimizeStatus").textContent = message;
+    }
+
+    function formatDomainFlag(pred) {
+      if (!pred) return "No matching saved GPR prediction point is available for this concrete scale.";
+      const distanceText = Number.isFinite(pred.nearestTrainingDistance)
+        ? `Nearest training distance ${pred.nearestTrainingDistance.toFixed(2)}.`
+        : `Nearest saved-grid distance ${pred.nearestDistance.toFixed(2)}.`;
+      if (pred.withinTrainingDistance === true) {
+        return `Inside the saved training-domain flag. ${distanceText}`;
+      }
+      if (pred.withinTrainingDistance === false) {
+        return `Outside the saved training-domain flag. Treat this as exploratory guidance. ${distanceText}`;
+      }
+      return `Applicability flag unavailable. ${distanceText}`;
+    }
+
+    function renderResultGuidance(c, pred) {
+      const current = document.getElementById("currentPredictionNote");
+      const optimisation = document.getElementById("optimizationSummary");
+      const applicability = document.getElementById("applicabilityNote");
+      if (!pred) {
+        current.textContent = "No prediction is available for the current input and selected concrete scale.";
+        applicability.textContent = "No applicability information is available.";
+      } else {
+        current.textContent = `Current full-input prediction: ${pred.strength.toFixed(1)} MPa with +/- ${pred.uncertainty.toFixed(1)} MPa uncertainty. Use as a starting reference point for experimental design, not as a guaranteed optimum.`;
+        applicability.textContent = formatDomainFlag(pred);
+      }
+
+      if (!lastOptimizationSummary) {
+        optimisation.textContent = "No optimisation has been run yet. Use either optimisation button to generate a suggested reference mix.";
+        return;
+      }
+      if (lastOptimizationSummary.totalBinderConcrete !== c.totalBinderConcrete || lastOptimizationSummary.fine !== c.fine || lastOptimizationSummary.coarse !== c.coarse) {
+        optimisation.textContent = "Latest optimisation was for a different concrete scale. Re-run optimisation for the current binder and aggregate selection.";
+        return;
+      }
+      optimisation.textContent = lastOptimizationSummary.text;
     }
 
     function optimiseActivator() {
@@ -1739,24 +1969,96 @@
       const button = document.getElementById("optimizeActivator");
       const fixed = {
         naoh: document.getElementById("fixNaOH").checked,
-        silicate: document.getElementById("fixSilicate").checked
+        silicate: document.getElementById("fixSilicate").checked,
+        water: document.getElementById("fixAdditionalWater").checked,
+        targetWaterBinder: document.getElementById("fixTargetWaterBinder").checked
       };
       button.disabled = true;
       button.textContent = "Optimising...";
-      setOptimizeStatus("Searching activator candidates and refining toward the nearest high-strength hotspot...");
+      setOptimizeStatus("Searching NaOH, sodium silicate, and optional water candidates near the C-(N)-A-S-H and N-A-S-H design zones...");
 
       setTimeout(() => {
         const best = findBestActivator(baseInputs, activeRows, fixed);
         button.disabled = false;
-        button.textContent = "Optimise activator";
+        button.textContent = "Optimise activator / water";
         if (!best) {
           setOptimizeStatus("No activator suggestion found for the selected condition.");
           return;
         }
         document.getElementById("dryNaOH").value = best.dryNaOH;
         document.getElementById("silicateSolution").value = best.silicateSolution;
-        lastOptimizedDesign = readInputs({ ...baseInputs, dryNaOH: best.dryNaOH, silicateSolution: best.silicateSolution });
-        setOptimizeStatus(`Suggested: ${best.dryNaOH.toFixed(1)} g NaOH and ${best.silicateSolution.toFixed(1)} g sodium silicate solution; predicted strength ${best.strength.toFixed(1)} MPa. Hotspot distance ${best.hotspotDistance.toFixed(2)}.`);
+        document.getElementById("additionalWater").value = best.additionalWater;
+        lastOptimizedDesign = readInputs({ ...baseInputs, dryNaOH: best.dryNaOH, silicateSolution: best.silicateSolution, additionalWater: best.additionalWater });
+        const achievedWb = lastOptimizedDesign.totalWater / lastOptimizedDesign.totalBinderMass;
+        const targetNote = fixed.targetWaterBinder ? ` Achieved water/binder ${achievedWb.toFixed(2)} for target ${baseInputs.targetWaterBinder.toFixed(2)}.` : ` Water/binder ${achievedWb.toFixed(2)}.`;
+        const summaryText = `Activator/water suggestion: ${best.dryNaOH.toFixed(2)} g NaOH, ${best.silicateSolution.toFixed(1)} g sodium silicate solution, and ${best.additionalWater.toFixed(1)} g additional water, targeting the ${best.zone} zone; predicted strength ${best.strength.toFixed(1)} MPa (+/- ${best.uncertainty.toFixed(1)} MPa).${targetNote} Zone distance ${best.zoneDistance.toFixed(2)}.`;
+        lastOptimizationSummary = {
+          text: summaryText,
+          totalBinderConcrete: lastOptimizedDesign.totalBinderConcrete,
+          fine: lastOptimizedDesign.fine,
+          coarse: lastOptimizedDesign.coarse
+        };
+        setOptimizeStatus(summaryText);
+        refresh();
+      }, 20);
+    }
+
+    function optimisePrecursorProportions() {
+      const baseInputs = readInputs();
+      if (activeBinderData !== String(baseInputs.totalBinderConcrete)) {
+        setOptimizeStatus("Loading matching binder data...");
+        loadPredictionDataForBinder(baseInputs.totalBinderConcrete, optimisePrecursorProportions);
+        return;
+      }
+
+      const activeRows = activePredictionRows(baseInputs);
+      if (!activeRows.length) {
+        setOptimizeStatus("No matching prediction data for the selected concrete mix scale.");
+        return;
+      }
+
+      const button = document.getElementById("optimizePrecursor");
+      const fixed = {
+        naoh: document.getElementById("fixNaOH").checked,
+        silicate: document.getElementById("fixSilicate").checked,
+        water: document.getElementById("fixAdditionalWater").checked,
+        targetWaterBinder: document.getElementById("fixTargetWaterBinder").checked
+      };
+      button.disabled = true;
+      button.textContent = "Optimising...";
+      setOptimizeStatus("Searching precursor proportions and practical activator/water proposals near the C-(N)-A-S-H and N-A-S-H design zones...");
+
+      setTimeout(() => {
+        const best = findBestPrecursorProposal(baseInputs, activeRows, fixed);
+        button.disabled = false;
+        button.textContent = "Optimise precursor proportions";
+        if (!best) {
+          setOptimizeStatus("No precursor proportion proposal found for the selected condition.");
+          return;
+        }
+        document.getElementById("p1Share").value = best.p1Share;
+        document.getElementById("p2Share").value = best.p2Share;
+        document.getElementById("dryNaOH").value = best.dryNaOH;
+        document.getElementById("silicateSolution").value = best.silicateSolution;
+        document.getElementById("additionalWater").value = best.additionalWater;
+        lastOptimizedDesign = readInputs({
+          ...baseInputs,
+          p1Share: best.p1Share,
+          p2Share: best.p2Share,
+          dryNaOH: best.dryNaOH,
+          silicateSolution: best.silicateSolution,
+          additionalWater: best.additionalWater
+        });
+        const achievedWb = lastOptimizedDesign.totalWater / lastOptimizedDesign.totalBinderMass;
+        const targetNote = fixed.targetWaterBinder ? ` Achieved water/binder ${achievedWb.toFixed(2)} for target ${baseInputs.targetWaterBinder.toFixed(2)}.` : ` Water/binder ${achievedWb.toFixed(2)}.`;
+        const summaryText = `Precursor proposal: ${best.p1Share.toFixed(0)}% precursor 1 and ${best.p2Share.toFixed(0)}% precursor 2, with ${best.dryNaOH.toFixed(1)} g NaOH, ${best.silicateSolution.toFixed(1)} g sodium silicate solution, and ${best.additionalWater.toFixed(1)} g additional water. Targeting the ${best.zone} zone; predicted strength ${best.strength.toFixed(1)} MPa (+/- ${best.uncertainty.toFixed(1)} MPa).${targetNote} Zone distance ${best.zoneDistance.toFixed(2)}.`;
+        lastOptimizationSummary = {
+          text: summaryText,
+          totalBinderConcrete: lastOptimizedDesign.totalBinderConcrete,
+          fine: lastOptimizedDesign.fine,
+          coarse: lastOptimizedDesign.coarse
+        };
+        setOptimizeStatus(summaryText);
         refresh();
       }, 20);
     }
@@ -1768,6 +2070,8 @@
         document.getElementById("strengthMetric").textContent = "Loading...";
         document.getElementById("uncertaintyMetric").textContent = "-- MPa";
         document.getElementById("regionMetric").textContent = "Loading data";
+        document.getElementById("currentPredictionNote").textContent = "Loading the saved GPR prediction data for this binder selection.";
+        document.getElementById("applicabilityNote").textContent = "Applicability check will update after the matching data file loads.";
         return;
       }
       const activeRows = activePredictionRows(c);
@@ -1781,6 +2085,7 @@
       document.getElementById("strengthMetric").textContent = pred ? `${pred.strength.toFixed(1)} MPa` : "-- MPa";
       document.getElementById("uncertaintyMetric").textContent = pred ? `+/- ${pred.uncertainty.toFixed(1)} MPa` : "-- MPa";
       document.getElementById("regionMetric").textContent = pred ? pred.region : "No matching data";
+      renderResultGuidance(c, pred);
 
       drawMap(
         "strengthMap",
@@ -1828,11 +2133,15 @@
       clearableInputIds.forEach((id) => document.getElementById(id).value = 0);
       document.getElementById("fixNaOH").checked = false;
       document.getElementById("fixSilicate").checked = false;
+      document.getElementById("fixAdditionalWater").checked = false;
+      document.getElementById("fixTargetWaterBinder").checked = false;
       lastOptimizedDesign = null;
+      lastOptimizationSummary = null;
       setOptimizeStatus("");
       refresh();
     });
     document.getElementById("optimizeActivator").addEventListener("click", optimiseActivator);
+    document.getElementById("optimizePrecursor").addEventListener("click", optimisePrecursorProportions);
 
     renderStrengthLegends();
     syncPredictionDataFromWindow();
@@ -1840,4 +2149,7 @@
   </script>
 </body>
 </html>
+
+
+
 
