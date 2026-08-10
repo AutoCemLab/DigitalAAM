@@ -533,6 +533,20 @@
       font-weight: 700;
     }
 
+    .usage-count {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .usage-count strong {
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+    }
+
     .flow {
       display: grid;
       gap: 14px;
@@ -1075,6 +1089,10 @@
               </ul>
               <p>The current webtool uses a precomputed GPR response surface and ternary design maps to guide practical starting points for alkali-activated concrete mix design.</p>
             </details>
+          </div>
+
+          <div class="usage-count" aria-live="polite">
+            Total public visits: <strong id="goatcounterTotal">loading...</strong>
           </div>
         </div>
       </section>
@@ -2124,6 +2142,29 @@
       loadPredictionDataForBinder(binder, update);
     }
 
+    window.goatcounter = window.goatcounter || {};
+    window.goatcounter.no_onload = location.protocol === "file:";
+    function loadPublicVisitCount() {
+      const total = document.getElementById("goatcounterTotal");
+      if (!total) return;
+      fetch("https://digitalaam.goatcounter.com/counter/TOTAL.json")
+        .then((response) => response.ok ? response.json() : Promise.reject())
+        .then((data) => {
+          total.textContent = data.count || "0";
+        })
+        .catch(() => {
+          total.textContent = location.protocol === "file:" ? "available after deployment" : "not available";
+        });
+    }
+
+    function loadGoatCounter() {
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = "https://gc.zgo.at/count.js";
+      script.dataset.goatcounter = "https://digitalaam.goatcounter.com/count";
+      document.body.appendChild(script);
+    }
+
     ids.forEach((id) => {
       const element = document.getElementById(id);
       element.addEventListener("input", refresh);
@@ -2145,6 +2186,8 @@
 
     renderStrengthLegends();
     syncPredictionDataFromWindow();
+    loadPublicVisitCount();
+    loadGoatCounter();
     refresh();
   </script>
 </body>
